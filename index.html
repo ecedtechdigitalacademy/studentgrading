@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Assessment Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: aqua;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 5px; /* Reduced padding */
+            text-align: center;
+            font-size: 12px; /* Reduced font size */
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"], input[type="text"] {
+            width: 50px; /* Adjusted width */
+            font-size: 12px; /* Adjusted font size */
+            padding: 2px; /* Adjusted padding */
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h3 style="text-align: center;">STUDENT GRADING SOFTWARE|| DESIGN BY SIR EDWARD|| 0244888885/ 0200100005</h3>
+    <table id="assessmentTable">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>English (Core)</th>
+                <th>Grade</th>
+                <th>Mathematics (Core)</th>
+                <th>Grade</th>
+                <th>Science (Core)</th>
+                <th>Grade</th>
+                <th>Social Studies (Core)</th>
+                <th>Grade</th>
+                <th>ICT (Elective)</th>
+                <th>Grade</th>
+                <th>CARD (Elective)</th>
+                <th>Grade</th>
+                <th>C.TECH (Elective)</th>
+                <th>Grade</th>
+                <th>R.M.E (Elective)</th>
+                <th>Grade</th>
+                <th>TWI (Elective)</th>
+                <th>Grade</th>
+                <th>FRENCH (Elective)</th>
+                <th>Grade</th>
+                <th>Total Grade</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody">
+            <tr>
+                <td><input type="text" value="John Doe"></td>
+                <td><input type="number" class="score" data-student="0" data-subject="0" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="0" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="1" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="1" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="2" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="2" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="3" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="3" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="4"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="4" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="5"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="5" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="6"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="6" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="7"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="7" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="8"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="8" readonly></td>
+                <td><input type="number" class="score" data-student="0" data-subject="9"></td>
+                <td><input type="text" class="subjectGrade" data-student="0" data-subject="9" readonly></td>
+                <td><input type="text" class="totalGrade" data-student="0" readonly></td>
+            </tr>
+            <!-- More students can be added here -->
+        </tbody>
+    </table>
+    <button onclick="addStudent()">Add Student</button>
+    <button onclick="generatePDF()">Generate PDF</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        let studentCount = 1;
+
+        function calculateGrade(score) {
+            if (score >= 90) return 1;
+            if (score >= 80) return 2;
+            if (score >= 70) return 3;
+            if (score >= 60) return 4;
+            if (score >= 55) return 5;
+            if (score >= 50) return 6;
+            if (score >= 40) return 7;
+            if (score >= 35) return 8;
+            return 9;
+        }
+
+        function calculateTotalAndGrade(studentId) {
+            const scores = document.querySelectorAll(`.score[data-student="${studentId}"]`);
+            let coreGrades = [];
+            let electiveGrades = [];
+
+            scores.forEach(scoreInput => {
+                const score = parseInt(scoreInput.value) || 0;
+                const grade = calculateGrade(score);
+                document.querySelector(`.subjectGrade[data-student="${studentId}"][data-subject="${scoreInput.dataset.subject}"]`).value = grade;
+
+                if (scoreInput.dataset.core === "true") {
+                    coreGrades.push(grade);
+                } else {
+                    electiveGrades.push(grade);
+                }
+            });
+
+            electiveGrades.sort((a, b) => a - b);
+            const bestTwoElectives = electiveGrades.slice(0, 2);
+            const totalGrade = [...coreGrades, ...bestTwoElectives].reduce((a, b) => a + b, 0);
+
+            document.querySelector(`.totalGrade[data-student="${studentId}"]`).value = totalGrade;
+        }
+
+        document.querySelectorAll('.score').forEach(input => {
+            input.addEventListener('input', (e) => calculateTotalAndGrade(e.target.dataset.student));
+        });
+
+        function addStudent() {
+            const studentTableBody = document.getElementById('studentTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Student Name"></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="0" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="0" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="1" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="1" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="2" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="2" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="3" data-core="true"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="3" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="4"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="4" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="5"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="5" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="6"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="6" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="7"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="7" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="8"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="8" readonly></td>
+                <td><input type="number" class="score" data-student="${studentCount}" data-subject="9"></td>
+                <td><input type="text" class="subjectGrade" data-student="${studentCount}" data-subject="9" readonly></td>
+                <td><input type="text" class="totalGrade" data-student="${studentCount}" readonly></td>
+            `;
+            studentTableBody.appendChild(newRow);
+            document.querySelectorAll(`.score[data-student="${studentCount}"]`).forEach(input => {
+                input.addEventListener('input', (e) => calculateTotalAndGrade(e.target.dataset.student));
+            });
+            studentCount++;
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape', 'px', 'a3');
+            
+                        // Add heading
+    const heading = "STUDENT GRADING SOFTWARE|| DESIGN BY SIR EDWARD|| 0244888885/ 0200100005 ";
+    const headingX = doc.internal.pageSize.getWidth() / 2 - doc.getStringUnitWidth(heading) * doc.internal.getFontSize() / 2;
+    const headingY = 20; // Adjust as needed
+    doc.text(heading, headingX, headingY);
+
+            // Extract data from the table
+            const tableData = [];
+            const headers = [];
+            document.querySelectorAll('#assessmentTable thead th').forEach(header => {
+                headers.push(header.innerText);
+            });
+            tableData.push(headers);
+            
+            document.querySelectorAll('#assessmentTable tbody tr').forEach(row => {
+                const rowData = [];
+                row.querySelectorAll('input').forEach(input => {
+                    rowData.push(input.value);
+                });
+                tableData.push(rowData);
+            });
+
+            // Generate the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1)
+            });
+            doc.save('mock_assessment.pdf');
+        }
+    </script>
+</body>
+</html>
